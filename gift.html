@@ -1,0 +1,38 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pawty Clash — A hat for you</title><link rel="stylesheet" href="style.css">
+<style>
+.gift{text-align:center;padding:22px 18px}.gift h1{font-size:26px;margin:6px 0}.hat{font-size:30px;font-weight:700;margin:6px 0 2px}
+.tier{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:700;font-size:13px;color:#0E1220}
+.btn{display:block;margin:12px auto 0;max-width:320px;padding:14px 18px;border-radius:16px;font-weight:700;font-size:17px;text-decoration:none}
+.b1{background:#F2B84B;color:#0E1220}.b2{background:#4D95FF;color:#0E1220}.code{font:700 20px ui-monospace,Menlo,monospace;letter-spacing:2px;margin-top:6px}
+.step{text-align:left;max-width:340px;margin:14px auto 0;line-height:1.6}
+</style></head><body><main>
+<header><img src="icon.png" alt="Pawty Clash icon"><div><h1>Pawty Clash</h1><div class="muted">Same-screen party games with pets · 宠物同屏对战小游戏</div></div></header>
+<div class="card gift" id="g"><p>Loading…</p></div>
+<p class="muted">© 2026 PARADIGX TECH PTE. LTD. · <a href="index.html">Support</a> · <a href="privacy.html">Privacy</a></p>
+</main>
+<script>
+// Same offline check as the game: hat + random part + checksum (no server, nothing sent anywhere).
+(function () {
+  var ORDER = ['beanie','cap','chef','straw','frog','duck','pirate','cowboy','wizard','tophat','ufo','rainbow'];
+  var NAMES = { beanie:['Beanie','毛线帽'], cap:['Ball Cap','棒球帽'], chef:['Chef Hat','厨师帽'], straw:['Straw Hat','草帽'], frog:['Froggy Hat','青蛙帽'], duck:['Rubber Duck','小黄鸭'], pirate:['Pirate Hat','海盗帽'], cowboy:['Cowboy Hat','牛仔帽'], wizard:['Wizard Hat','巫师帽'], tophat:['Top Hat','魔术礼帽'], ufo:['Mini UFO','小飞碟'], rainbow:['Rainbow','彩虹'] };
+  var TIER = function (i) { return i >= 10 ? ['Shiny','闪光','#FFD76A'] : i >= 6 ? ['Rare','稀有','#7FB2FF'] : ['Common','普通','#7BD389']; };
+  var B32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+  function check(h, n) { var x = 2166136261, s = h + ':' + n + ':pawty-gift'; for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; } return (x ^ (x >>> 16)) & 0xffff; }
+  function decode(s) { s = String(s || '').toUpperCase().replace(/O/g,'0').replace(/[IL]/g,'1').replace(/[^0-9A-Z]/g,'').slice(-8); if (s.length !== 8) return null;
+    var v = 0; for (var i = 0; i < 8; i++) { var k = B32.indexOf(s[i]); if (k < 0) return null; v = v * 32 + k; }
+    var c = v % 65536, n = Math.floor(v / 65536) % 1048576, h = Math.floor(v / 68719476736); if (!(h < ORDER.length && check(h, n) === c)) return null;
+    var day = Math.floor((Date.now() - Date.UTC(2026, 0, 1)) / 864e5) & 4095, age = (day - Math.floor(n / 256) + 4096) % 4096; return { h: h, code: s, expired: age > 7 }; }
+  var zh = /^zh/i.test(navigator.language || ''), el = document.getElementById('g');
+  var m = location.search.match(/[?&]c=([0-9A-Za-z]+)/), g = m && decode(m[1]);
+  if (!g) { el.innerHTML = zh ? '<h1>礼物码不对</h1><p>请再扫一次礼物卡上的二维码。</p>' : '<h1>Hmm, that gift code isn’t right</h1><p>Please scan the QR code on the gift card again.</p>'; return; }
+  if (g.expired) { el.innerHTML = zh ? '<h1>这张礼物卡过期了</h1><p>礼物卡 7 天内有效，请朋友再送一张。</p>' : '<h1>This gift card has expired</h1><p>Gift cards last 7 days — ask your friend for a new one.</p>'; return; }
+  var id = ORDER[g.h], nm = NAMES[id], t = TIER(g.h), disp = g.code.slice(0,4) + '-' + g.code.slice(4), app = 'pawtyclash://gift?c=' + g.code;
+  el.innerHTML = (zh ? '<h1>朋友送你一顶</h1>' : '<h1>A friend sent you a</h1>') +
+    '<div class="hat">' + (zh ? nm[1] : nm[0]) + '</div><span class="tier" style="background:' + t[2] + '">' + (zh ? t[1] : t[0]) + '</span>' +
+    '<a class="btn b1" href="index.html">' + (zh ? '① 下载 Pawty Clash（即将上架 App Store）' : '① Get Pawty Clash (coming soon to the App Store)') + '</a>' +
+    '<a class="btn b2" href="' + app + '">' + (zh ? '② 已经装好了？点这里领取' : '② Already have it? Claim the hat') + '</a>' +
+    '<div class="step">' + (zh ? '打不开的话：在游戏里点 设置 → 礼物码，输入：' : 'If the button doesn’t open the game: in the game, tap Settings → Gift code and enter:') + '<div class="code">' + disp + '</div></div>' +
+    '<p class="muted">' + (zh ? '礼物卡 7 天内有效。帽子是免费的装饰品，玩游戏也能得到。' : 'Gift cards last 7 days. Hats are free cosmetics — you can also win them by playing.') + '</p>';
+})();
+</script></body></html>
